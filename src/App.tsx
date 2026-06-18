@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Card from './components/Card';
 import Button from './components/Button';
 import FormRenderer from './renderer/FormRenderer';
 import { employeeSchema } from './schemas/employeeSchema';
 import type { FormSchema } from './types/form.types';
 import aiService from './services/ai.service';
+import { generateReactCode } from './generators/reactCodeGenerator';
+import CodeViewer from './components/CodeViewer';
 import styles from './App.module.css';
 
 interface FormVersion {
@@ -38,6 +40,19 @@ function App() {
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [submittedData, setSubmittedData] = useState<Record<string, unknown> | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // Tab State
+  const [activeTab, setActiveTab] = useState<'preview' | 'schema' | 'code'>('preview');
+
+  // Automatically generate code on parsedSchema changes
+  const generatedCode = useMemo(() => {
+    try {
+      return generateReactCode(parsedSchema);
+    } catch (err) {
+      console.error('Code generation error:', err);
+      return `// Error generating component code: ${(err as Error).message}`;
+    }
+  }, [parsedSchema]);
 
   // Trigger Mock AI generation based on input prompt
   const handleGenerateForm = async () => {
@@ -262,86 +277,142 @@ function App() {
             </Card>
           </section>
 
-          {/* Column 2 - Generated Form Preview & Submissions */}
-          <section className={`${styles.panel} ${styles.previewPanel}`}>
-            <h2 className={styles.panelTitle}>Live Preview</h2>
-            <Card
-              title={parsedSchema.title}
-              description={parsedSchema.description}
-              className={styles.previewCard}
-            >
-              {jsonError ? (
-                <div className={styles.emptyState}>
-                  <span className={styles.emptyIcon}>⚠️</span>
-                  <h3>Unable to Render Preview</h3>
-                  <p>Correct the JSON syntax or schema rules in the right editor column.</p>
-                </div>
-              ) : parsedSchema.fields.length === 0 ? (
-                <div className={styles.emptyState}>
-                  <span className={styles.emptyIcon}>📝</span>
-                  <h3>No Fields Defined</h3>
-                  <p>Use the prompt format <code>Field Name : Field Type : Options/Rules</code> to define fields in your form.</p>
-                </div>
-              ) : (
-                <FormRenderer schema={parsedSchema} onSubmit={handleFormSubmit} />
-              )}
-            </Card>
-
-            <div className={styles.panel}>
-              <h2 className={styles.panelTitle}>Submitted Payload Viewer</h2>
-              <Card>
-                {showSuccess && (
-                  <div className={styles.successBanner}>
-                    <span>✓</span> Form validated and submitted successfully!
-                  </div>
-                )}
-                {submittedData ? (
-                  <pre className={styles.jsonResult}>
-                    {JSON.stringify(submittedData, null, 2)}
-                  </pre>
-                ) : (
-                  <div className={styles.emptyState}>
-                    <span className={styles.emptyIcon}>📋</span>
-                    <h3>No Data Received</h3>
-                    <p>Enter inputs in the preview panel above and submit the form.</p>
-                  </div>
-                )}
-              </Card>
-            </div>
-          </section>
-
-          {/* Column 3 - JSON Schema Playground Editor */}
-          <section className={styles.panel}>
-            <h2 className={styles.panelTitle}>
-              <span>JSON Schema Editor</span>
-              <span
-                className={`${styles.statusIndicator} ${
-                  jsonError ? styles.statusInvalid : styles.statusValid
+          {/* Column 2 - Main Tabbed Workspace */}
+          <div className={styles.mainWorkspace}>
+            <div className={styles.tabBar}>
+              <button
+                type="button"
+                className={`${styles.tabButton} ${
+                  activeTab === 'preview' ? styles.activeTabButton : ''
                 }`}
+                onClick={() => setActiveTab('preview')}
               >
-                {jsonError ? '● Syntax Error' : '● Schema Valid'}
-              </span>
-            </h2>
-            <Card className={styles.schemaCard}>
-              <div className={styles.editorContainer}>
-                <textarea
-                  className={styles.textarea}
-                  value={jsonText}
-                  onChange={(e) => handleJsonChange(e.target.value)}
-                  placeholder="Enter JSON Form Schema here..."
-                  spellCheck="false"
-                  disabled={isGenerating}
-                />
-                {jsonError && (
-                  <div className={styles.errorMessage}>
-                    <strong>Parsing Error:</strong>
-                    <br />
-                    {jsonError}
+                👁️ Form Preview
+              </button>
+              <button
+                type="button"
+                className={`${styles.tabButton} ${
+                  activeTab === 'schema' ? styles.activeTabButton : ''
+                }`}
+                onClick={() => setActiveTab('schema')}
+              >
+                ⚙️ JSON Schema
+              </button>
+              <button
+                type="button"
+                className={`${styles.tabButton} ${
+                  activeTab === 'code' ? styles.activeTabButton : ''
+                }`}
+                onClick={() => setActiveTab('code')}
+              >
+                ⚡ Generated React Code
+              </button>
+            </div>
+
+            {activeTab === 'preview' && (
+              <div className={styles.tabContent}>
+                <section className={`${styles.panel} ${styles.previewPanel}`}>
+                  <h2 className={styles.panelTitle}>Live Preview</h2>
+                  <Card
+                    title={parsedSchema.title}
+                    description={parsedSchema.description}
+                    className={styles.previewCard}
+                  >
+                    {jsonError ? (
+                      <div className={styles.emptyState}>
+                        <span className={styles.emptyIcon}>⚠️</span>
+                        <h3>Unable to Render Preview</h3>
+                        <p>Correct the JSON syntax or schema rules in the JSON Schema tab.</p>
+                      </div>
+                    ) : parsedSchema.fields.length === 0 ? (
+                      <div className={styles.emptyState}>
+                        <span className={styles.emptyIcon}>📝</span>
+                        <h3>No Fields Defined</h3>
+                        <p>Use the prompt format <code>Field Name : Field Type : Options/Rules</code> to define fields in your form.</p>
+                      </div>
+                    ) : (
+                      <FormRenderer schema={parsedSchema} onSubmit={handleFormSubmit} />
+                    )}
+                  </Card>
+
+                  <div className={styles.panel}>
+                    <h2 className={styles.panelTitle}>Submitted Payload Viewer</h2>
+                    <Card>
+                      {showSuccess && (
+                        <div className={styles.successBanner}>
+                          <span>✓</span> Form validated and submitted successfully!
+                        </div>
+                      )}
+                      {submittedData ? (
+                        <pre className={styles.jsonResult}>
+                          {JSON.stringify(submittedData, null, 2)}
+                        </pre>
+                      ) : (
+                        <div className={styles.emptyState}>
+                          <span className={styles.emptyIcon}>📋</span>
+                          <h3>No Data Received</h3>
+                          <p>Enter inputs in the preview panel above and submit the form.</p>
+                        </div>
+                      )}
+                    </Card>
                   </div>
-                )}
+                </section>
               </div>
-            </Card>
-          </section>
+            )}
+
+            {activeTab === 'schema' && (
+              <div className={styles.tabContent}>
+                <section className={styles.panel}>
+                  <h2 className={styles.panelTitle}>
+                    <span>JSON Schema Editor</span>
+                    <span
+                      className={`${styles.statusIndicator} ${
+                        jsonError ? styles.statusInvalid : styles.statusValid
+                      }`}
+                    >
+                      {jsonError ? '● Syntax Error' : '● Schema Valid'}
+                    </span>
+                  </h2>
+                  <Card className={styles.schemaCard}>
+                    <div className={styles.editorContainer}>
+                      <textarea
+                        className={styles.textarea}
+                        value={jsonText}
+                        onChange={(e) => handleJsonChange(e.target.value)}
+                        placeholder="Enter JSON Form Schema here..."
+                        spellCheck="false"
+                        disabled={isGenerating}
+                      />
+                      {jsonError && (
+                        <div className={styles.errorMessage}>
+                          <strong>Parsing Error:</strong>
+                          <br />
+                          {jsonError}
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                </section>
+              </div>
+            )}
+
+            {activeTab === 'code' && (
+              <div className={styles.tabContent}>
+                <section className={styles.panel} style={{ height: '100%' }}>
+                  <h2 className={styles.panelTitle}>Generated React Hook Form Component</h2>
+                  {jsonError ? (
+                    <div className={styles.emptyState}>
+                      <span className={styles.emptyIcon}>⚠️</span>
+                      <h3>Unable to Generate Code</h3>
+                      <p>Correct the JSON syntax or schema rules in the JSON Schema tab first.</p>
+                    </div>
+                  ) : (
+                    <CodeViewer code={generatedCode} formTitle={parsedSchema.title} />
+                  )}
+                </section>
+              </div>
+            )}
+          </div>
         </div>
       </main>
     </div>

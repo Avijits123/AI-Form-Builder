@@ -1,0 +1,124 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: var(--bg-code);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-lg);
+}
+
+.actionBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  background-color: rgba(15, 23, 42, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.filename {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-code);
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.625rem;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f1f5f9;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.actionBtn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.downloadBtn {
+  background-color: var(--primary);
+  border-color: transparent;
+}
+
+.downloadBtn:hover {
+  background-color: var(--primary-hover);
+}
+
+.icon {
+  font-size: 0.875rem;
+}
+
+.codeWrapper {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  min-height: 400px;
+}
+
+.pre {
+  margin: 0;
+  padding: 1.25rem;
+  height: 100%;
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--text-code);
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  tab-size: 2;
+}
+
+/* Syntax Token Colors */
+.codeKeyword {
+  color: #a855f7; /* Royal Purple */
+  font-weight: 600;
+}
+
+.codeString {
+  color: #22c55e; /* Vibrant Green */
+}
+
+.codeComment {
+  color: #64748b; /* Muted Slate Grey */
+  font-style: italic;
+}
+
+.codeTag {
+  color: #f43f5e; /* Coral Pink */
+}
+
+.codeHook {
+  color: #f59e0b; /* Amber Gold */
+  font-weight: 500;
+}
+
+/* Scrollbar adjustments for dark theme code editor */
+.codeWrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.codeWrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}

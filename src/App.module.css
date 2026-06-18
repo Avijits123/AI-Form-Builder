@@ -155,7 +155,7 @@
 /* Playground Columns Layout */
 .playgroundGrid {
   display: grid;
-  grid-template-columns: 220px 1.2fr 1fr;
+  grid-template-columns: 220px 1fr;
   gap: 1.5rem;
   flex: 1;
 }
@@ -363,4 +363,65 @@
   max-height: 250px;
   white-space: pre-wrap;
   border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Tab Navigation Styles */
+.tabBar {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.25rem;
+  margin-bottom: 1.25rem;
+  align-items: center;
+}
+
+.tabButton {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 0.625rem 1.25rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  outline: none;
+}
+
+.tabButton:hover {
+  color: var(--text-main);
+  background-color: var(--primary-light);
+}
+
+.activeTabButton {
+  color: var(--primary);
+  background-color: var(--primary-light);
+}
+
+.activeTabButton::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--primary);
+  border-radius: 9999px;
+}
+
+.tabContent {
+  animation: fadeIn var(--transition-normal) forwards;
+  height: 100%;
+}
+
+.mainWorkspace {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
